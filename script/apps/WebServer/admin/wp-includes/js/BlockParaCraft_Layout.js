@@ -80,21 +80,22 @@ Blockly.Blocks['ParaCraft_Goto'] =
         "message0": "goto x: %1 y: %2 z: %3",
         "args0": [
           {
-            "type": "field_number",
+            "type": "input_value",
             "name": "x",
-            "value": 0
+            "check": "Number"
           },
           {
-            "type": "field_number",
+            "type": "input_value",
             "name": "y",
-            "value": 0
+            "check": "Number"
           },
           {
-            "type": "field_number",
+            "type": "input_value",
             "name": "z",
-            "value": 0
+            "check": "Number"
           }
         ],
+        "inputsInline": true,
         "previousStatement": null,
         "nextStatement": null,
         "colour": 210,
@@ -111,21 +112,22 @@ Blockly.Blocks['ParaCraft_SetPosition'] =
         "message0": "set position x: %1 y: %2 z: %3",
         "args0": [
           {
-            "type": "field_number",
+            "type": "input_value",
             "name": "x",
-            "value": 0
+            "check": "Number"
           },
           {
-            "type": "field_number",
+            "type": "input_value",
             "name": "y",
-            "value": 0
+            "check": "Number"
           },
           {
-            "type": "field_number",
+            "type": "input_value",
             "name": "z",
-            "value": 0
+            "check": "Number"
           }
         ],
+        "inputsInline": true,
         "previousStatement": null,
         "nextStatement": null,
         "colour": 210,
@@ -403,7 +405,6 @@ Blockly.Blocks['ParaCraft_Stop'] =
         "type": "ParaCraft_Stop",
         "message0": "stop",
         "previousStatement": null,
-        "nextStatement": null,
         "colour": 230,
         "tooltip": "",
         "helpUrl": ""
@@ -440,7 +441,7 @@ Blockly.Blocks['ParaCraft_AskAndWait'] =
         "args0": [
           {
             "type": "field_input",
-            "name": "NAME",
+            "name": "question",
             "text": "what's your name?"
           }
         ],

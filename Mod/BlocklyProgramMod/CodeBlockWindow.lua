@@ -107,4 +107,5 @@ end
 
 function CodeBlockWindow.setCode(code)
     CodeBlockWindow.mEntity:setCode(code)
+    CodeBlockWindow.page:SetValue("words2", CodeBlockWindow.mEntity.mCode)
 end

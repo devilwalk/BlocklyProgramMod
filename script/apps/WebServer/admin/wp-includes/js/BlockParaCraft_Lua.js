@@ -1,9 +1,9 @@
 Blockly.Lua['ParaCraft_Start'] = function (block) {
   // TODO: Assemble Lua into code variable.
   var statement = Blockly.Lua.statementToCode(block, 'statement') || '\n';
-  if (statement == '\n') {
-    statement = 'while true do\nAPI:doNothing();\nend\n';
-  }
+  // if (statement == '\n') {
+  //   statement = 'while true do\nAPI:doNothing();\nend\n';
+  // }
   return 'API:setActive(function()\n' + statement + 'end)\n';
 };
 Blockly.Lua['ParaCraft_Move'] = function (block) {
@@ -20,18 +20,18 @@ Blockly.Lua['ParaCraft_Turn'] = function (block) {
 };
 Blockly.Lua['ParaCraft_Goto'] = function (block) {
   // TODO: Assemble Lua into code variable.
-  var number_x = block.getFieldValue('x');
-  var number_y = block.getFieldValue('y');
-  var number_z = block.getFieldValue('z');
-  var code = 'API:goto(' + number_x + ',' + number_y + ',' + number_z + ');\n';
+  var x = Blockly.Lua.valueToCode(block, 'x', Blockly.Lua.ORDER_ATOMIC);
+  var y = Blockly.Lua.valueToCode(block, 'y', Blockly.Lua.ORDER_ATOMIC);
+  var z = Blockly.Lua.valueToCode(block, 'z', Blockly.Lua.ORDER_ATOMIC);
+  var code = 'API:gotoPosition(' + x + ',' + y + ',' + z + ');\n';
   return code;
 };
 Blockly.Lua['ParaCraft_SetPosition'] = function (block) {
   // TODO: Assemble Lua into code variable.
-  var number_x = block.getFieldValue('x');
-  var number_y = block.getFieldValue('y');
-  var number_z = block.getFieldValue('z');
-  var code = 'API:setPosition(' + number_x + ',' + number_y + ',' + number_z + ');\n';
+  var x = Blockly.Lua.valueToCode(block, 'x', Blockly.Lua.ORDER_ATOMIC);
+  var y = Blockly.Lua.valueToCode(block, 'y', Blockly.Lua.ORDER_ATOMIC);
+  var z = Blockly.Lua.valueToCode(block, 'z', Blockly.Lua.ORDER_ATOMIC);
+  var code = 'API:setPosition(' + x + ',' + y + ',' + z + ');\n';
   return code;
 };
 Blockly.Lua['ParaCraft_OnKeyPressed'] = function (block) {
@@ -119,7 +119,7 @@ Blockly.Lua['ParaCraft_PlaySound'] = function (block) {
   return code;
 };
 Blockly.Lua['ParaCraft_AskAndWait'] = function (block) {
-  var text_name = block.getFieldValue('NAME');
+  var text_name = block.getFieldValue('question');
   // TODO: Assemble Lua into code variable.
   var code = 'API:askAndWait(\\"' + text_name + '\\");\n';
   return code;

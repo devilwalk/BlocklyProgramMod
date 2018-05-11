@@ -149,27 +149,19 @@ function Entity:SaveToXMLNode(node, bSort)
     node = Entity._super.SaveToXMLNode(self, node, bSort)
     local attr = node.attr
     attr.mCode = self.mCode
-    echo(
-        "devilwalk---------------------------------debug:EntityBlockly.lua:Entity:SaveToXMLNode:attr.mCode:" ..
-            tostring(attr.mCode)
-    )
     return node
 end
 
 function Entity:LoadFromXMLNode(node)
     Entity._super.LoadFromXMLNode(self, node)
     local attr = node.attr
-    echo(
-        "devilwalk---------------------------------debug:EntityBlockly.lua:Entity:LoadFromXMLNode:attr.mCode:" ..
-            tostring(attr.mCode)
-    )
     if attr.mCode then
         self:setCode(attr.mCode)
     end
 end
 
 function Entity:createAPI()
-    self.mAPI = ProgrammingAPI:new({mEntity = self.mEntity, mCreator = self, mParentCoroutine = self.mCoroutine})
+    self.mAPI = ProgrammingAPI:new({mEntity = self.mEntity, mCreator = self})
     return self.mAPI
 end
 

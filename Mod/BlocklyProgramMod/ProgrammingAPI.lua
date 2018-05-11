@@ -25,12 +25,18 @@ function API:ctor()
     assert(self.mCreator ~= nil, "API:ctor:self.mCreator:nil")
     self.mCommandQueue = CommandQueue:new()
     self.mAlive = true
+    self.mTimerTickCount = 0
     self.mCoroutine =
         coroutine.create(
         function()
+            self.mTimer = commonlib.Timer:new()
+            self.mTimer:Tick()
+            self.mTimerInitTickCount = self.mTimer.lastTick
             self.mCommandQueue:execute()
             while self.mAlive do
                 self.mCommandQueue:frameMove()
+                self.mTimer:Tick()
+                self.mTimerTickCount = self.mTimer.lastTick - self.mTimerInitTickCount
                 coroutine.yield()
             end
         end
@@ -61,6 +67,14 @@ function API:turn(type)
     self.mCommandQueue:add(CommandFactory.create("Turn", {mEntity = self.mEntity, mType = type}))
     coroutine.yield()
 end
+function API:gotoPosition(x, y, z)
+    self.mCommandQueue:add(CommandFactory.create("Goto", {mEntity = self.mEntity, mX = x, mY = y, mZ = z}))
+    coroutine.yield()
+end
+function API:setPosition(x, y, z)
+    self.mCommandQueue:add(CommandFactory.create("SetPosition", {mEntity = self.mEntity, mX = x, mY = y, mZ = z}))
+    coroutine.yield()
+end
 function API:setEventFunction(name, parameters, func)
     if "OnKeyPressed" == name then
         if not self.mOnKeyPressed then
@@ -80,7 +94,6 @@ function API:setEventFunction(name, parameters, func)
                                 callback(new_api)
                             end
                         )
-                        new_api.mParentCoroutine = coro
                         local function on_frame_move(key)
                             if key.mCoroutine then
                                 if "suspended" == coroutine.status(key.mCoroutine) then
@@ -111,39 +124,36 @@ function API:setEventFunction(name, parameters, func)
     elseif "OnClick" == name then
         if not self.mOnClick then
             self.mOnClick = {}
-            self.mOnClick.mFunction = function(inst, event)
-                if event.mouse_button == "left" and event.event_type == "mouseReleaseEvent" then
-                    if inst.mOnClick.mAPI then
-                        inst.mOnClick.mAPI.mAlive = false
-                        inst.mOnClick.mAPI = nil
+            self.mOnClick.mFunction = function(entity, event)
+                if self.mOnClick.mAPI then
+                    self.mOnClick.mAPI.mAlive = false
+                    self.mOnClick.mAPI = nil
+                end
+                local new_api = API:new({mEntity = self.mEntity, mCreator = self.mCreator})
+                local coro =
+                    coroutine.create(
+                    function()
+                        func(new_api)
                     end
-                    local new_api = API:new({mEntity = inst.mEntity, mCreator = inst.mCreator})
-                    local coro =
-                        coroutine.create(
-                        function()
-                            func(new_api)
+                )
+                local function on_frame_move(key)
+                    if key.mCoroutine then
+                        if "suspended" == coroutine.status(key.mCoroutine) then
+                            coroutine.resume(key.mCoroutine)
+                        elseif "dead" == coroutine.status(key.mCoroutine) then
+                            self.mCreator.mEventSystem:RemoveEventListener("FrameMove", key.mOnFrameMove, key)
+                            key.mOnFrameMove = nil
                         end
-                    )
-                    new_api.mParentCoroutine = coro
-                    local function on_frame_move(key)
-                        if key.mCoroutine then
-                            if "suspended" == coroutine.status(key.mCoroutine) then
-                                coroutine.resume(key.mCoroutine)
-                            elseif "dead" == coroutine.status(key.mCoroutine) then
-                                inst.mCreator.mEventSystem:RemoveEventListener("FrameMove", key.mOnFrameMove, key)
-                                key.mOnFrameMove = nil
-                            end
-                        end
-                    end
-                    inst.mOnClick.mCoroutine = coro
-                    inst.mOnClick.mAPI = new_api
-                    if not inst.mOnClick.mOnFrameMove then
-                        inst.mOnClick.mOnFrameMove = on_frame_move
-                        inst.mCreator.mEventSystem:AddEventListener("FrameMove", on_frame_move, inst.mOnClick)
                     end
                 end
+                self.mOnClick.mCoroutine = coro
+                self.mOnClick.mAPI = new_api
+                if not self.mOnClick.mOnFrameMove then
+                    self.mOnClick.mOnFrameMove = on_frame_move
+                    self.mCreator.mEventSystem:AddEventListener("FrameMove", on_frame_move, self.mOnClick)
+                end
             end
-            Mod.mEventSystem:AddEventListener("handleMouseEvent", self.mOnClick.mFunction, self)
+            self.mEntity.onclick = self.mOnClick.mFunction
         end
     elseif "OnEvent" == name then
         if not self.mOnEvent then
@@ -168,7 +178,6 @@ function API:postEvent(event)
                 func(new_api)
             end
         )
-        new_api.mParentCoroutine = coro
         local function on_frame_move(key)
             if key.mCoroutine then
                 if "suspended" == coroutine.status(key.mCoroutine) then
@@ -186,6 +195,74 @@ function API:postEvent(event)
             self.mCreator.mEventSystem:AddEventListener("FrameMove", on_frame_move, self.mOnEvent.mKeys[event])
         end
     end
+end
+function API:say(text, time)
+    self.mCommandQueue:add(CommandFactory.create("Say", {mEntity = self.mEntity, mText = text, mTime = time}))
+    coroutine.yield()
+end
+function API:show()
+    self.mCommandQueue:add(CommandFactory.create("SetVisible", {mEntity = self.mEntity, mVisible = true}))
+    coroutine.yield()
+end
+function API:hide()
+    self.mCommandQueue:add(CommandFactory.create("SetVisible", {mEntity = self.mEntity, mVisible = false}))
+    coroutine.yield()
+end
+function API:setTime(time)
+    self.mCommandQueue:add(CommandFactory.create("SetTime", {mEntity = self.mEntity, mTime = time}))
+    coroutine.yield()
+end
+function API:setAnimation(animationID)
+    self.mCommandQueue:add(CommandFactory.create("SetAnimation", {mEntity = self.mEntity, mAnimationID = animationID}))
+    coroutine.yield()
+end
+function API:setSize(size)
+    self.mCommandQueue:add(CommandFactory.create("SetSize", {mEntity = self.mEntity, mSize = size}))
+    coroutine.yield()
+end
+function API:wait(time)
+    self.mCommandQueue:add(CommandFactory.create("Wait", {mEntity = self.mEntity, mTime = time}))
+    coroutine.yield()
+end
+function API:stop()
+    self.mCommandQueue:add(CommandFactory.create("Stop", {mEntity = self.mEntity, mAPI = self}))
+    coroutine.yield()
+end
+function API:playSound(path)
+    self.mCommandQueue:add(CommandFactory.create("PlaySound", {mEntity = self.mEntity, mPath = path}))
+    coroutine.yield()
+end
+function API:askAndWait(question)
+    self.mCommandQueue:add(
+        CommandFactory.create("AskAndWait", {mEntity = self.mEntity, mQuestion = question, mAPI = self})
+    )
+    coroutine.yield()
+end
+function API:getAnswer()
+    return self.mAnswer
+end
+function API:isMouseDown()
+    return Mod.mLastMouseButtonState["left"] == "Pressed"
+end
+function API:isKeyPressed(key)
+    return Mod.mLastKeyState[key] == "Pressed"
+end
+function API:getMousePosition(posType)
+    local result = Game.SelectionManager:GetPickingResult()
+    if "x" == posType then
+        return result.blockX
+    elseif "y" == posType then
+        return result.blockY
+    elseif "z" == posType then
+        return result.blockZ
+    end
+end
+function API:getTimer()
+    return self.mTimerTickCount * 0.001
+end
+function API:resetTimer()
+    self.mCommandQueue:add(CommandFactory.create("ResetTimer", {mEntity = self.mEntity, mAPI = self}))
+    coroutine.yield()
 end
 function API:destroyBlock()
     self.mCommandQueue:add(CommandFactory.create("DestroyBlock", {mEntity = self.mEntity}))

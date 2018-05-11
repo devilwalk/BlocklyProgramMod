@@ -119,7 +119,7 @@
     <button id="Save" onclick="blockly_onClickSave()">保存</button>
     <button id="Open" onclick="">打开...</button>
   </div>  
-  <div id="blocklyDiv" style="height: 480px; width: 600px;">
+  <div id="blocklyDiv" style="height: 800px; width: 1280px;">
   <xml id="toolbox" style="display: none">
     <category name="Motion">
       <block type="ParaCraft_Move"></block>

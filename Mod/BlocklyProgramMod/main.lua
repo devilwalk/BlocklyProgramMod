@@ -34,6 +34,8 @@ end
 function BlocklyProgramMod:init()
     LOG.std(nil, "info", "BlocklyProgramMod", "plugin initialized");
     self.mEventSystem=commonlib.EventSystem:new();
+    self.mLastMouseButtonState = {}
+    self.mLastKeyState = {}
     Filters.Install();
     
     -- register a new block item, id < 10512 is internal items, which is not recommended to modify. 
@@ -91,11 +93,21 @@ end
 function BlocklyProgramMod:handleMouseEvent(event)
     --echo("devilwalk----------------------------debug:main.lua:BlocklyProgramMod:handleMouseEvent:event:")
     --echo(event);
+    if event.event_type == "mousePressEvent" then
+        self.mLastMouseButtonState[event.mouse_button] = "Pressed";
+    elseif event.event_type == "mouseReleaseEvent" then
+        self.mLastMouseButtonState[event.mouse_button] = "Released";
+    end
     self.mEventSystem:DispatchEventByType("handleMouseEvent",event);
 end
 
 function BlocklyProgramMod:handleKeyEvent(event)
     --echo("devilwalk----------------------------debug:main.lua:BlocklyProgramMod:handleKeyEvent:event:")
     --echo(event);
+    if event.event_type == "keyPressEvent" then
+        self.mLastKeyState[event.keyname] = "Pressed";
+    elseif event.event_type == "keyReleaseEvent" then
+        self.mLastKeyState[event.keyname] = "Released";
+    end
     self.mEventSystem:DispatchEventByType("handleKeyEvent",event);
 end
