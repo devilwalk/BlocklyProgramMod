@@ -65,23 +65,23 @@ function Move:execute()
     self.mContext.mDestBlockPosition = {dst_block_pos_x, dst_block_pos_y, dst_block_pos_z}
     self.mContext.mEntity:WalkTo(dst_block_pos_x, dst_block_pos_y, dst_block_pos_z)
     self._super.execute(self)
-    echo(
-        "devilwalk--------------------------------------------debug:Move:execute:src_block_pos:" ..
-            tostring(src_block_pos_x) .. "," .. tostring(src_block_pos_y) .. "," .. tostring(src_block_pos_z)
-    )
-    echo(
-        "devilwalk--------------------------------------------debug:Move:execute:dst_block_pos:" ..
-            tostring(dst_block_pos_x) .. "," .. tostring(dst_block_pos_y) .. "," .. tostring(dst_block_pos_z)
-    )
+    -- echo(
+    --     "devilwalk--------------------------------------------debug:Move:execute:src_block_pos:" ..
+    --         tostring(src_block_pos_x) .. "," .. tostring(src_block_pos_y) .. "," .. tostring(src_block_pos_z)
+    -- )
+    -- echo(
+    --     "devilwalk--------------------------------------------debug:Move:execute:dst_block_pos:" ..
+    --         tostring(dst_block_pos_x) .. "," .. tostring(dst_block_pos_y) .. "," .. tostring(dst_block_pos_z)
+    -- )
 end
 function Move:executing()
-    echo("devilwalk--------------------------------------------debug:Move:executing:self.mContext.mDestBlockPosition:")
-    echo(self.mContext.mDestBlockPosition)
-    echo(
-        "devilwalk--------------------------------------------debug:Move:executing:self.mContext.mEntity.targetX,self.mContext.mEntity.targetY,self.mContext.mEntity.targetZ:" ..
-            tostring(self.mContext.mEntity.targetX) ..
-                "," .. tostring(self.mContext.mEntity.targetY) .. "," .. tostring(self.mContext.mEntity.targetZ)
-    )
+    --echo("devilwalk--------------------------------------------debug:Move:executing:self.mContext.mDestBlockPosition:")
+    --echo(self.mContext.mDestBlockPosition)
+    -- echo(
+    --     "devilwalk--------------------------------------------debug:Move:executing:self.mContext.mEntity.targetX,self.mContext.mEntity.targetY,self.mContext.mEntity.targetZ:" ..
+    --         tostring(self.mContext.mEntity.targetX) ..
+    --             "," .. tostring(self.mContext.mEntity.targetY) .. "," .. tostring(self.mContext.mEntity.targetZ)
+    -- )
     if not self.mContext.mEntity:HasTarget() then
         self.mContext.mEntity:SetBlockPos(
             self.mContext.mDestBlockPosition[1] + 1,
@@ -114,7 +114,7 @@ function Goto:execute()
     self._super.execute(self)
 end
 function Goto:executing()
-    echo("devilwalk--------------------------------------------debug:Goto:executing")
+    --echo("devilwalk--------------------------------------------debug:Goto:executing")
     if not self.mContext.mEntity:HasTarget() then
         self.mContext.mEntity:SetBlockPos(self.mContext.mX + 1, self.mContext.mY, self.mContext.mZ)
         self.mContext.mEntity:SetBlockPos(self.mContext.mX, self.mContext.mY, self.mContext.mZ)
@@ -140,7 +140,7 @@ function SetPosition:execute()
     self._super.execute(self)
 end
 function SetPosition:executing()
-    echo("devilwalk--------------------------------------------debug:SetPosition:executing")
+    --echo("devilwalk--------------------------------------------debug:SetPosition:executing")
     self.mState = Command.EState.Finish
 end
 
@@ -160,10 +160,10 @@ function Turn:ctor()
     assert(self.mContext.mType ~= nil, "command turn type is nil")
 end
 function Turn:execute()
-    echo(
-        "devilwalk--------------------------------------------debug:Turn:execute:src_facing:" ..
-            tostring(self.mContext.mEntity:GetFacing())
-    )
+    -- echo(
+    --     "devilwalk--------------------------------------------debug:Turn:execute:src_facing:" ..
+    --         tostring(self.mContext.mEntity:GetFacing())
+    -- )
     local delta_facing = 0
     if self.mContext.mType == Turn.EType.Left then
         delta_facing = -1.57
@@ -202,7 +202,9 @@ end
 function Say:executing()
     self.mTimer:Tick()
     local delta = self.mTimer.lastTick - self.mFirstTick
-    if delta * 1000 >= self.mContext.mTime then
+    --echo("devilwalk-------------------------------ProgrammingCommand.lua:Say:executing:self.mTimer.lastTick:"..tostring(self.mTimer.lastTick))
+    --echo("devilwalk-------------------------------ProgrammingCommand.lua:Say:executing:self.mFirstTick:"..tostring(self.mFirstTick))
+    if delta * 0.001 >= self.mContext.mTime then
         self.mState = Command.EState.Finish
     end
 end
@@ -276,8 +278,10 @@ function Wait:execute()
 end
 function Wait:executing()
     self.mTimer:Tick()
+    --echo("devilwalk-------------------------------ProgrammingCommand.lua:Wait:executing:self.mTimer.lastTick:"..tostring(self.mTimer.lastTick))
+    --echo("devilwalk-------------------------------ProgrammingCommand.lua:Wait:executing:self.mFirstTick:"..tostring(self.mFirstTick))
     local delta = self.mTimer.lastTick - self.mFirstTick
-    if delta * 1000 >= self.mContext.mTime then
+    if delta * 0.001 >= self.mContext.mTime then
         self.mState = Command.EState.Finish
     end
 end
@@ -369,10 +373,10 @@ function DestroyBlock:executing()
     end
     BlockEngine:SetBlockToAir(dst_block_pos_x, dst_block_pos_y, dst_block_pos_z, 3)
     self.mState = Command.EState.Finish
-    echo(
-        "devilwalk--------------------------------------------debug:DestroyBlock:execute:dst_block_pos:" ..
-            tostring(dst_block_pos_x) .. "," .. tostring(dst_block_pos_y) .. "," .. tostring(dst_block_pos_z)
-    )
+    -- echo(
+    --     "devilwalk--------------------------------------------debug:DestroyBlock:execute:dst_block_pos:" ..
+    --         tostring(dst_block_pos_x) .. "," .. tostring(dst_block_pos_y) .. "," .. tostring(dst_block_pos_z)
+    -- )
 end
 
 local Factory = commonlib.gettable("Mod.BlocklyProgramMod.ProgrammingCommand.Factory")
